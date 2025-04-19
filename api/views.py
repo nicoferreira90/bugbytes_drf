@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from rest_framework import generics
+from rest_framework import generics, permissions
 from api.serializers import ProductSerializer, OrderSerializer
 from api.models import Product, Order
 from rest_framework.decorators import api_view
@@ -25,6 +25,7 @@ class OrderListView(generics.ListAPIView):
 class UserOrderListView(generics.ListAPIView):
     queryset = Order.objects.prefetch_related("items").all()
     serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
