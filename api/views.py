@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from rest_framework import generics
 from api.serializers import ProductSerializer, OrderSerializer
 from api.models import Product, Order
 from rest_framework.decorators import api_view
@@ -6,22 +7,16 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 
-@api_view(["GET"])
-def product_list(request):
-    products = Product.objects.all()
-    serializer = ProductSerializer(products, many=True)
-    return Response(serializer.data)
+class ProductListView(generics.ListAPIView):
+    queryset = Product.objects.filter(stock__gt=0)
+    serializer_class = ProductSerializer
 
 
-@api_view(["GET"])
-def product_detail(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    serializer = ProductSerializer(product)
-    return Response(serializer.data)
+class ProductDetailView(generics.RetrieveAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
 
 
-@api_view(["GET"])
-def order_list(request):
-    orders = Order.objects.prefetch_related("items").all()
-    serializer = OrderSerializer(orders, many=True)
-    return Response(serializer.data)
+class OrderListView(generics.ListAPIView):
+    queryset = Order.objects.prefetch_related("items").all()
+    serializer_class = OrderSerializer
